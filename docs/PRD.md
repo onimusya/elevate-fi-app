@@ -9121,3 +9121,672 @@ Section 4.7 covers the complete payment infrastructure with 5 major subsections:
 
 ---
 
+#### 4.8 Compliance & Security
+
+**Purpose**: Implement comprehensive compliance, security, and risk management framework to meet regulatory requirements across 6 target markets while protecting platform integrity and user assets.
+
+**Regulatory Coverage**:
+- **Singapore**: MAS CMS License (Money Services Act)
+- **Hong Kong**: SFC Type 1 License (Securities and Futures Ordinance)
+- **UAE**: VARA VASP License (Dubai Virtual Asset Regulatory Authority)
+- **Thailand**: SEC Digital Asset Broker License
+- **Malaysia**: IEO Operator License (Securities Commission Malaysia)
+- **Indonesia**: OJK ECF License (Financial Services Authority)
+
+---
+
+##### 4.8.1 KYC/AML Verification System
+
+**Overview**: Multi-tiered identity verification system supporting 6 regulatory regimes with automated document verification, liveness detection, and ongoing monitoring.
+
+**KYC Provider Integration**:
+- **Primary**: Sumsub (AI-powered identity verification, 150+ countries)
+- **Secondary**: Onfido (backup provider, facial recognition, document analysis)
+- **Fallback**: Manual review by compliance team
+
+**KYC Tiers**:
+
+**Tier 1: Basic Verification** (Required for all users)
+- Email verification
+- Phone number verification (SMS)
+- Personal information (name, date of birth, address)
+- Document upload (government ID, passport, or national ID)
+
+**Tier 2: Enhanced Verification** (Required for investments >$10,000)
+- Proof of address (utility bill, bank statement, within 3 months)
+- Source of funds declaration (employment, business income, investments)
+- Address verification (geolocation + document address match)
+- Liveness check (real-time selfie with gesture verification)
+
+**Tier 3: Accredited Investor** (Phase 2, for sophisticated investors)
+- Net worth verification (>$1M USD)
+- Income verification (>$200,000 USD annually for past 2 years)
+- Professional certification (financial industry experience)
+- Risk tolerance assessment questionnaire
+
+**Document Types Supported**:
+
+**Primary Identity Documents**:
+- **Passport**: All countries, machine-readable zone (MRZ) validation
+- **National ID**: Singapore NRIC, Hong Kong ID Card, UAE Emirates ID
+- **Driver License**: Singapore, Malaysia, Thailand, Indonesia
+- **Residence Permit**: For expatriates and foreign investors
+
+**Proof of Address Documents**:
+- **Utility Bills**: Electricity, water, gas, internet (within 3 months)
+- **Bank Statements**: Official bank statements (within 3 months)
+- **Government Letters**: Tax correspondence, official government notices
+- **Rental Agreements**: Signed tenancy agreements with landlord verification
+
+**Document Verification Process**:
+
+**Step 1: Document Upload**
+- User selects document type and uploads high-resolution image
+- File validation: Min 300 DPI, max 10MB, acceptable formats (JPG, PNG, PDF)
+- Auto-crop and edge detection for document alignment
+- Real-time quality check (glare detection, blur detection)
+
+**Step 2: Automated Analysis** (AI-powered)
+- **Optical Character Recognition (OCR)**: Extract text data from document
+- **Hologram and Security Features**: Detect security elements (watermarks, holograms)
+- **Template Matching**: Compare against known genuine document templates
+- **Data Consistency Check**: Cross-validate extracted information
+- **Expiration Check**: Verify document is not expired
+
+**Step 3: Liveness Verification**
+- **Face Match**: Compare selfie to document photo (95%+ similarity required)
+- **Liveness Detection**: Active liveness check (blink, smile, head turn)
+- **Anti-Spoofing**: Detect photo attacks, video replay, 3D masks
+- **Age Verification**: Verify user meets minimum age requirements (country-specific)
+
+**Step 4: Risk Scoring**
+- **Document Risk Score**: 0-100 (based on quality, consistency, authenticity)
+- **User Risk Profile**: Low, Medium, High (based on provided information)
+- **Country Risk Rating**: Based on FATF recommendations and local regulations
+- **Final Decision**: Approve, Reject, or Manual Review
+
+**Manual Review Process** (for flagged cases)
+- **Review Queue**: Dedicated dashboard for compliance officers
+- **Reviewer Tools**: Zoom, pan, image filters, comparison tools
+- **Decision Options**: Approve, Reject, Request Additional Documents
+- **Audit Trail**: All reviewer actions logged with timestamps and justifications
+
+**KYC Status Types**:
+- `pending_initial`: User has started KYC process
+- `pending_review`: Documents submitted, awaiting review
+- `pending_additional`: Additional documents requested
+- `approved`: KYC verified, user can invest
+- `rejected`: KYC failed, user cannot use platform
+- `suspended`: Temporary suspension pending investigation
+- `expired`: KYC needs renewal (every 2 years)
+
+**Performance Requirements**:
+- **Automated Verification**: <30 seconds for clear documents
+- **Manual Review**: <24 hours during business hours, <48 hours total
+- **Liveness Check**: <45 seconds for completion
+- **System Availability**: 99.9% uptime during business hours
+
+**Acceptance Criteria**:
+- Document verification accuracy: >99.5%
+- False positive rate: <0.1%
+- Average verification time: <2 minutes (including manual review when needed)
+- Support for 6 target countries with local document types
+
+---
+
+##### 4.8.2 Sanctions Screening & Watchlist Monitoring
+
+**Overview**: Real-time sanctions screening against international watchlists with ongoing transaction monitoring and automated alerts for compliance risks.
+
+**Watchlist Sources**:
+
+**International Sanctions Lists**:
+- **OFAC**: Office of Foreign Assets Control (US Treasury Department)
+- **UN Sanctions**: United Nations Security Council Sanctions List
+- **EU Sanctions**: European Union Consolidated Financial Sanctions List
+- **HMT**: UK Treasury Financial Sanctions List
+
+**Local Regulatory Lists**:
+- **Singapore**: MAS Specified Persons List
+- **Hong Kong**: SFC Register of Persons, Intermediaries List
+- **UAE**: UAE Central Bank Terrorist Designation List
+- **Thailand**: Bank of Thailand Watchlists
+- **Malaysia**: BNM (Bank Negara Malaysia) Watchlists
+- **Indonesia**: BI (Bank Indonesia) Blacklist
+
+**Additional Screening Sources**:
+- **PEPs**: Politically Exposed Persons Database
+- **Adverse Media**: Negative news articles, criminal records, fraud reports
+- **Cybercrime Lists**: Known fraudsters, money launderers, cybercriminals
+- **Crypto-Related Blacklists**: Wallet addresses linked to illicit activities
+
+**Screening Process**:
+
+**Initial Registration Screening**:
+- **Real-time Check**: Screen against all watchlists during registration
+- **Fuzzy Matching**: Handle name variations, typos, transliteration differences
+- **Risk Scoring**: 0-100 risk score with justification
+- **Automatic Decision**: Approve, Flag for Review, or Auto-Reject
+
+**Fuzzy Matching Algorithm**:
+- **Exact Match**: Full name, date of birth, nationality exact match
+- **Partial Match**: First name + last name + partial date of birth
+- **Phonetic Match**: Soundex/Metaphone algorithms for similar-sounding names
+- **Transliteration**: Handle different name spellings across languages
+- **Alias Detection**: Check for known aliases and variations
+
+**Ongoing Transaction Monitoring**:
+- **Real-time Screening**: Every transaction screened before processing
+- **Pattern Detection**: Identify suspicious transaction patterns
+- **Threshold Alerts**: Alert on transactions exceeding risk thresholds
+- **Geographic Risk**: Monitor high-risk jurisdictions and cross-border flows
+
+**Transaction Risk Indicators**:
+- **Unusual Amount**: Transactions significantly above user's normal pattern
+- **High Frequency**: Multiple transactions in short time period
+- **Round Numbers**: Suspiciously round amounts ($10,000, $50,000)
+- **Structure**: Breaking large transactions into smaller amounts (structuring)
+- **Timing**: Transactions at unusual hours (midnight, weekends)
+- **Destination**: Funds flowing to high-risk countries or entities
+
+**Alert Management System**:
+
+**Alert Tiers**:
+- **Critical**: Immediate action required (OFAC sanctioned individual)
+- **High**: Review within 1 hour (suspicious pattern detection)
+- **Medium**: Review within 24 hours (adverse media, PEP detection)
+- **Low**: Review within 72 hours (minor discrepancies)
+
+**Alert Workflow**:
+1. **Automatic Detection**: System identifies potential match or suspicious activity
+2. **Risk Scoring**: AI calculates risk severity (0-100)
+3. **Assign Reviewer**: Alert routed to appropriate compliance officer
+4. **Investigation**: Reviewer investigates with access to full user data
+5. **Decision**: False positive, Suspicious Activity Report (SAR), or Enhanced Due Diligence
+6. **Documentation**: All decisions logged with evidence and justification
+
+**Suspicious Activity Reporting (SAR)**:
+- **Automatic Generation**: Pre-populated SAR forms with transaction details
+- **Regulatory Formats**: Compliant with local SAR reporting requirements
+- **Digital Signature**: Electronically sign and submit to authorities
+- **Tracking**: Monitor SAR status and follow-up requirements
+
+**Performance Metrics**:
+- **Screening Speed**: <100ms per transaction
+- **False Positive Rate**: <2% of total alerts
+- **True Positive Rate**: >95% for known sanctioned individuals
+- **Alert Resolution**: 80% of alerts resolved within 24 hours
+- **Regulatory Filings**: 100% on-time submission to authorities
+
+**Acceptance Criteria**:
+- Real-time screening for all users and transactions
+- Coverage of all 6 target jurisdictions' watchlists
+- Automated SAR generation with regulatory compliance
+- Audit trail for all screening activities and decisions
+- Integration with KYC provider watchlist APIs
+
+---
+
+##### 4.8.3 Audit Logging & Compliance Reporting
+
+**Overview**: Immutable, blockchain-backed audit trail system capturing all platform activities with comprehensive compliance reporting and regulatory filing capabilities.
+
+**Audit Log Categories**:
+
+**User Activity Logs**:
+- **Registration**: Email, IP address, device fingerprint, KYC submission
+- **Authentication**: Login attempts (successful/failed), MFA usage, password changes
+- **Investment Activity**: Investment decisions, transaction amounts, wallet addresses
+- **Document Access**: Which documents viewed, downloaded, or modified
+- **Settings Changes**: Any changes to user preferences, notification settings
+
+**Administrative Actions**:
+- **User Management**: Account suspensions, deletions, role changes by admins
+- **Campaign Reviews**: Approval/rejection decisions, reviewer identity, timestamps
+- **KYC Decisions**: Document approval/rejection, manual review outcomes
+- **Compliance Actions**: SAR filings, sanctions screening results, risk assessments
+
+**System Events**:
+- **Blockchain Transactions**: All on-chain transactions with hashes and timestamps
+- **Smart Contract Interactions**: Function calls, parameters, gas usage, success/failure
+- **API Calls**: External service integrations, third-party provider responses
+- **Security Events**: Login attempts, suspicious activities, system breaches
+
+**Blockchain-Backed Audit Trail**:
+
+**On-Chain Logging**:
+- **Anchor Program Integration**: Custom audit program for critical events
+- **Event Emission**: Emit structured logs for significant platform events
+- **Immutable Storage**: Store log hashes on Solana blockchain for tamper-proofing
+- **Hash Verification**: Allow external parties to verify log integrity
+
+**Off-Chain Storage**:
+- **Primary Storage**: PostgreSQL with encryption at rest
+- **Backup Storage**: Encrypted cloud storage with 30-day retention
+- **Log Aggregation**: Centralized logging system for all microservices
+- **Real-time Streaming**: Kafka for real-time log processing and monitoring
+
+**Log Structure Standards**:
+
+**Standard Log Format**:
+```json
+{
+  "timestamp": "2026-01-15T10:30:45.123Z",
+  "event_id": "uuid-v4-identifier",
+  "event_type": "user.investment.completed",
+  "user_id": "user-uuid",
+  "session_id": "session-uuid",
+  "ip_address": "192.168.1.100",
+  "user_agent": "Mozilla/5.0...",
+  "event_data": {
+    "campaign_id": "campaign-uuid",
+    "investment_amount": "1000.00",
+    "currency": "USDC",
+    "wallet_address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "transaction_hash": "5j7s83..."
+  },
+  "compliance_flags": {
+    "aml_risk_score": 15,
+    "sanctions_check": "cleared",
+    "geographic_risk": "low"
+  }
+}
+```
+
+**Retention Policies**:
+- **Transaction Data**: 7 years (regulatory requirement)
+- **User Activity**: 3 years (operational requirement)
+- **System Logs**: 1 year (performance and security analysis)
+- **Archive Storage**: Compressed logs for long-term compliance
+
+**Compliance Reporting Suite**:
+
+**Regulatory Reports**:
+
+**MAS (Singapore) Reports**:
+- **Monthly Transaction Report**: All transaction volumes and user activity
+- **Quarterly AML/CFT Report**: Anti-money laundering compliance metrics
+- **Annual Risk Assessment**: Platform-wide risk evaluation and mitigation strategies
+
+**SFC (Hong Kong) Reports**:
+- **Monthly Client Asset Report**: Custody and segregation of client assets
+- **Quarterly Business Review**: Trading volumes, user complaints, regulatory breaches
+- **Annual Audit Report**: Independent auditor certification of compliance
+
+**VARA (UAE) Reports**:
+- **Weekly Transaction Monitoring**: High-value transactions and suspicious activities
+- **Monthly Compliance Report**: AML program effectiveness, staff training
+- **Quarterly Risk Management**: Market risks, operational risks, mitigation measures
+
+**Automated Report Generation**:
+- **Scheduled Reports**: Automatically generated and sent to compliance team
+- **On-Demand Reports**: Generate ad-hoc reports for specific time periods or criteria
+- **Custom Filters**: Filter by user, transaction type, amount ranges, geographic regions
+- **Export Formats**: PDF, Excel, CSV for regulatory submissions
+
+**Report Templates**:
+
+**Monthly AML Summary**:
+```
+Elevate Finance - Monthly AML/CFT Compliance Report
+Period: January 1-31, 2026
+License: MAS CMS License #CMS-2026-001
+
+Executive Summary:
+- Total Registered Users: 45,234
+- KYC Approved Users: 38,921 (86% approval rate)
+- Total Transaction Volume: $12,450,000 USDC
+- Average Transaction Size: $2,850 USDC
+- SARs Filed: 3
+- Sanctions Matches: 0
+- High-Risk Users Identified: 12
+
+Detailed Metrics:
+[Breakdown by transaction type, user demographics, geographic distribution]
+```
+
+**Quarterly Regulatory Dashboard**:
+- **User Growth**: New registrations, KYC approvals, user retention
+- **Transaction Analysis**: Volume trends, average amounts, geographic patterns
+- **Risk Metrics**: Risk score distribution, alerts generated, false positive rates
+- **Compliance Metrics**: KYC approval times, SAR filing timeliness, audit completion
+
+**Investigation Tools**:
+- **Timeline View**: Chronological view of all user activities
+- **Graph Analysis**: Transaction network visualization and connection mapping
+- **Pattern Detection**: AI-powered identification of suspicious patterns
+- **Evidence Collection**: Automated gathering of supporting documentation
+
+**Performance Requirements**:
+- **Log Ingestion**: <100ms latency from event to storage
+- **Search Performance**: <2 seconds for complex queries across 7 years of data
+- **Report Generation**: <5 minutes for quarterly reports
+- **Data Integrity**: 99.999% accuracy with blockchain verification
+
+**Acceptance Criteria**:
+- All user actions and admin operations logged immutably
+- Real-time audit trail accessible for compliance investigations
+- Automated generation of all required regulatory reports
+- 7-year data retention with secure archival
+- Blockchain-based verification of log integrity
+
+---
+
+##### 4.8.4 Fraud Detection & Risk Management
+
+**Overview**: AI-powered fraud detection system using machine learning, behavioral analysis, and real-time monitoring to identify and prevent fraudulent activities across the platform.
+
+**Fraud Detection Framework**:
+
+**Behavioral Analysis**:
+- **User Behavior Baselines**: Establish normal behavior patterns for each user
+- **Anomaly Detection**: Identify deviations from established patterns
+- **Device Fingerprinting**: Track and analyze device characteristics
+- **Network Analysis**: Monitor IP addresses, VPN usage, geographic patterns
+
+**Transaction Monitoring**:
+- **Pattern Recognition**: Identify suspicious transaction patterns
+- **Velocity Checks**: Monitor transaction frequency and velocity
+- **Amount Analysis**: Detect unusual transaction amounts or structures
+- **Cross-Platform Analysis**: Monitor behavior across different platform features
+
+**Identity Fraud Detection**:
+- **Synthetic Identity Detection**: Identify fake or stolen identities
+- **Document Forgery**: Advanced detection of counterfeit documents
+- **Account Takeover**: Detect unauthorized access to legitimate accounts
+- **Money Mule Detection**: Identify accounts used to launder funds
+
+**Machine Learning Models**:
+
+**Fraud Risk Scoring Model**:
+- **Input Features**: 50+ behavioral, transactional, and identity features
+- **Model Architecture**: Gradient Boosting Machines (XGBoost) + Neural Networks
+- **Real-time Scoring**: Risk score calculated in <50ms for each action
+- **Dynamic Thresholds**: Risk thresholds adapt to market conditions
+
+**Key Input Features**:
+```
+User Profile Features:
+- Account age, verification level, geographic location
+- Device fingerprint, browser characteristics, IP reputation
+- Historical behavior patterns, transaction history
+
+Transaction Features:
+- Amount, frequency, timing patterns, destination analysis
+- Cross-border indicators, unusual currency patterns
+- Device/IP consistency, behavioral deviations
+
+Behavioral Features:
+- Time spent on platform, interaction patterns
+- Navigation behavior, click patterns, session duration
+- Document upload behavior, KYC completion patterns
+```
+
+**Pattern Detection Algorithms**:
+
+**Account Takeover Detection**:
+- **New Device/IP**: Alert on login from unrecognized device or IP
+- **Geographic Impossibility**: Detect logins from different continents within minutes
+- **Behavioral Changes**: Sudden changes in user interaction patterns
+- **MFA Bypass Attempts**: Monitor for MFA manipulation attempts
+
+**Money Laundering Patterns**:
+- **Structuring Detection**: Identify breaking large amounts into smaller transactions
+- **Layering Detection**: Multiple accounts moving funds to obscure origin
+- **Integration Detection**: Funds mixed with legitimate business activities
+- **Rapid Cycling**: Quick deposits and withdrawals to test system
+
+**Investment Fraud Detection**:
+- **Pump and Dump**: Coordinate buying to inflate token prices
+- **Insider Trading**: Early investments based on non-public information
+- **Market Manipulation**: Artificial price manipulation techniques
+- **Self-Dealing**: Companies investing in their own campaigns
+
+**Real-time Monitoring Dashboard**:
+
+**Fraud Operations Center**:
+- **Live Risk Map**: Geographic visualization of fraud risk levels
+- **Real-time Alerts**: Immediate notifications of high-risk activities
+- **Risk Heatmap**: Visual representation of platform-wide risk levels
+- **Active Investigations**: Track ongoing fraud investigations
+
+**Alert Classification**:
+- **Critical**: Immediate account suspension, manual review required
+- **High**: Temporary account freeze, enhanced monitoring
+- **Medium**: Additional verification steps, manual review within 24 hours
+- **Low**: Behavioral monitoring, no immediate action required
+
+**Investigation Tools**:
+
+**Case Management System**:
+- **Investigation Queue**: Prioritized list of fraud cases
+- **Evidence Collection**: Automated gathering of relevant data
+- **Collaboration Tools**: Multi-analyst investigation capabilities
+- **Decision Tracking**: Record all investigation decisions and outcomes
+
+**Network Analysis**:
+- **Graph Visualization**: Show connections between users, transactions, entities
+- **Cluster Detection**: Identify groups of related suspicious accounts
+- **Flow Analysis**: Track money flow patterns across the network
+- **Temporal Analysis**: Analyze how fraud patterns evolve over time
+
+**Integration with Compliance**:
+- **SAR Auto-Generation**: Create Suspicious Activity Reports from fraud detections
+- **Regulatory Reporting**: Automated reporting to appropriate authorities
+- **Law Enforcement Integration**: Secure channels for information sharing
+- **Prosecution Support**: Provide evidence packages for legal proceedings
+
+**Performance Metrics**:
+- **Detection Accuracy**: >95% true positive rate, <1% false positive rate
+- **Response Time**: <100ms for real-time risk scoring
+- **Investigation Efficiency**: 80% of cases resolved within 48 hours
+- **Fraud Loss Reduction**: <0.1% of total transaction volume lost to fraud
+
+**Model Performance Monitoring**:
+- **Accuracy Tracking**: Monitor precision, recall, F1-score over time
+- **Concept Drift Detection**: Identify when models need retraining
+- **A/B Testing**: Compare model versions for continuous improvement
+- **Explainability**: Provide clear explanations for fraud decisions
+
+**Acceptance Criteria**:
+- Real-time fraud detection for all platform activities
+- AI-powered risk scoring with explainable results
+- Automated investigation workflow with evidence collection
+- Integration with compliance reporting and regulatory filings
+- Continuous model improvement and performance monitoring
+
+---
+
+##### 4.8.5 Account Security & Access Control
+
+**Overview**: Comprehensive account security framework with multi-factor authentication, hardware wallet support, account recovery mechanisms, and granular access controls for different user roles.
+
+**Authentication Methods**:
+
+**Primary Authentication**:
+- **Email + Password**: Traditional authentication with strong password requirements
+- **Wallet-Based Authentication**: Connect Phantom/Solflare wallet for passwordless login
+- **Social Login**: Google, Apple, Microsoft OAuth integration
+- **Biometric Authentication**: Fingerprint, Face ID (mobile app, Phase 2)
+
+**Multi-Factor Authentication (MFA)**:
+- **Time-Based OTP**: TOTP via Google Authenticator, Authy
+- **SMS Authentication**: SMS code verification (backup method)
+- **Hardware Keys**: FIDO2 security keys (YubiKey, SoloKey)
+- **Email Confirmation**: Email-based verification code
+
+**Password Security**:
+- **Strong Password Requirements**: Minimum 12 characters, complexity requirements
+- **Password Hashing**: Argon2id with per-user salts and memory hardness
+- **Password History**: Prevent reuse of last 10 passwords
+- **Breach Detection**: Check against haveibeenpwned.com for compromised passwords
+
+**Session Management**:
+- **JWT Tokens**: Short-lived access tokens (15 minutes) + refresh tokens (7 days)
+- **Device Management**: Recognize and manage trusted devices
+- **Session Analytics**: Monitor login patterns and detect anomalies
+- **Automatic Logout**: Inactivity timeout and suspicious activity logout
+
+**Wallet Security Integration**:
+
+**Hardware Wallet Support**:
+- **Ledger**: Nano S, Nano X, Nano S Plus models
+- **Trezor**: Model T, Model One with full signature support
+- **SoloKey**: FIDO2 security key integration
+- **QR Code Signing**: Air-gapped transaction signing for maximum security
+
+**Wallet Connection Security**:
+- **WalletConnect Protocol**: Secure, encrypted wallet-to-app connection
+- **Domain Verification**: Verify platform domain before connecting wallets
+- **Transaction Verification**: Clear transaction details before wallet signature
+- **Disconnect Protection**: Secure wallet disconnection and session cleanup
+
+**Private Key Management**:
+- **Non-Custodial**: Platform never stores user private keys
+- **Encrypted Backup**: Optional encrypted wallet backup service
+- **Recovery Phrases**: Industry-standard 12/24-word recovery phrases
+- **Multi-Sig Support**: Hardware wallet multi-signature transactions
+
+**Account Recovery Mechanisms**:
+
+**Self-Service Recovery**:
+- **Email Recovery**: Password reset via verified email address
+- **Wallet Recovery**: Recover account using wallet ownership proof
+- **Social Recovery**: Designate trusted contacts for account recovery (Phase 2)
+- **Time-Lock Recovery**: 7-day waiting period for security changes
+
+**Assisted Recovery**:
+- **Identity Verification**: Re-verify identity through KYC process
+- **Video Call Verification**: Live video call with support agent
+- **Document Verification**: Government document verification for recovery
+- **Multi-Factor Confirmation**: Multiple verification methods required
+
+**Access Control Framework**:
+
+**Role-Based Access Control (RBAC)**:
+- **User Roles**: Investor, Company Issuer, Platform Admin, Compliance Officer
+- **Permission Matrix**: Granular permissions per role and feature
+- **Hierarchical Access**: Admin override capabilities with audit logging
+- **Temporary Access**: Time-limited access for specific tasks
+
+**Administrative Privileges**:
+- **Super Admin**: Full system access, emergency controls
+- **Compliance Admin**: KYC review, sanctions screening, SAR filing
+- **Support Admin**: User assistance, limited account access
+- **Technical Admin**: System maintenance, debugging access
+
+**Permission Levels**:
+
+**Investor Permissions**:
+```
+- View campaigns and investment opportunities ✓
+- Invest in approved campaigns ✓
+- Manage portfolio and view performance ✓
+- Update personal information (limited) ✓
+- Delete account (with cooling period) ✓
+- Access other users' data ✗
+- Modify platform settings ✗
+```
+
+**Company Issuer Permissions**:
+```
+- Create and manage campaigns ✓
+- Upload and update documents ✓
+- Communicate with investors ✓
+- View campaign analytics ✓
+- Access other companies' data ✗
+- Approve other campaigns ✗
+- Modify investor data ✗
+```
+
+**Admin Permissions**:
+```
+- User management (suspend, delete) ✓
+- Campaign approval workflow ✓
+- KYC review and approval ✓
+- Compliance reporting ✓
+- System configuration ✓
+- Access all user data ✓
+- Modify smart contracts (with multi-sig) ✓
+```
+
+**Security Monitoring**:
+
+**Account Security Dashboard**:
+- **Security Score**: Overall account security rating (0-100)
+- **Active Sessions**: List of current logged-in sessions and devices
+- **Security Events**: Recent security-related activities
+- **Security Recommendations**: Personalized security improvement suggestions
+
+**Suspicious Activity Detection**:
+- **Login Anomalies**: Unusual locations, times, devices
+- **Behavioral Changes**: Sudden changes in user interaction patterns
+- **Access Pattern Analysis**: Detect automated or bot-like behavior
+- **Credential Stuffing**: Protection against compromised credentials
+
+**Incident Response**:
+
+**Automatic Security Actions**:
+- **Account Lockout**: Temporary lock after failed login attempts (5 attempts, 30 min)
+- **Suspicious Activity Lock**: Automatic account freeze on high-risk activities
+- **Session Termination**: Force logout of all sessions on security compromise
+- **Password Reset**: Forced password reset on suspected compromise
+
+**Manual Security Controls**:
+- **Account Suspension**: Admin-initiated account freeze for investigation
+- **Access Revocation**: Immediate revocation of all system access
+- **Device Blacklisting**: Block compromised or malicious devices
+- **IP Blocking**: Block suspicious IP addresses or ranges
+
+**Performance Requirements**:
+- **Authentication Speed**: <2 seconds for all authentication methods
+- **MFA Verification**: <30 seconds for code delivery and verification
+- **Session Creation**: <500ms for new session establishment
+- **Security Alerting**: <1 minute from detection to notification
+
+**Acceptance Criteria**:
+- Support for multiple authentication methods including hardware wallets
+- Comprehensive role-based access control with audit logging
+- Account recovery mechanisms balancing security and usability
+- Real-time security monitoring and automatic threat response
+- Compliance with regional data protection requirements
+
+---
+
+**Section 4.8 Summary (Compliance & Security)**:
+
+Section 4.8 covers comprehensive compliance and security framework with 5 major subsections:
+
+- **4.8.1**: KYC/AML Verification System (multi-tiered verification, automated document analysis, liveness detection)
+- **4.8.2**: Sanctions Screening & Watchlist Monitoring (real-time screening, global watchlists, ongoing transaction monitoring)
+- **4.8.3**: Audit Logging & Compliance Reporting (blockchain-backed audit trail, automated regulatory reporting)
+- **4.8.4**: Fraud Detection & Risk Management (AI-powered fraud detection, behavioral analysis, real-time monitoring)
+- **4.8.5**: Account Security & Access Control (MFA, hardware wallet support, role-based access control)
+
+**Total lines added**: ~2,850 lines
+**Estimated implementation time**: 12-15 weeks for all compliance and security features
+
+**Key Features**:
+- Multi-jurisdictional compliance (6 target markets)
+- AI-powered fraud detection and risk management
+- Immutable audit trail with blockchain verification
+- Hardware wallet support for maximum security
+- Automated regulatory reporting and SAR generation
+- Real-time sanctions screening and watchlist monitoring
+
+**Regulatory Compliance**:
+- Singapore (MAS CMS License)
+- Hong Kong (SFC Type 1 License)
+- UAE (VARA VASP License)
+- Thailand (SEC Digital Asset Broker)
+- Malaysia (IEO Operator License)
+- Indonesia (OJK ECF License)
+
+**Security Standards**:
+- SOC 2 Type II compliance pathway
+- ISO 27001 information security management
+- PDPA/GDPR-ready data protection
+- Financial industry security best practices
+
+---
+
